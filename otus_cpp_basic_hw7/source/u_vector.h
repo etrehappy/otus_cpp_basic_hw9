@@ -1,16 +1,15 @@
 #pragma once
 #include <iostream>
-#include "my_exception.h"
 
 template<typename T>
 class u_vector 
 {
 public:
     u_vector();
-    u_vector(const u_vector<T>& rhs) = delete;
-    u_vector& operator=(const u_vector<T>& rhs) = delete;
-    u_vector(u_vector<T> &&rhs) noexcept; //доп. задание 3
-    u_vector& operator=(u_vector<T>&& rhs) noexcept; //доп. задание 3
+    u_vector(const u_vector<T>& rhs);
+    u_vector& operator=(const u_vector<T>& rhs) = delete; //нигде не используется
+    u_vector(u_vector<T> &&rhs) noexcept; 
+    u_vector& operator=(u_vector<T>&& rhs) noexcept; 
     virtual ~u_vector();
 
     void push_back(const T& value);

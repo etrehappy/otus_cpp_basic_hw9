@@ -3,28 +3,57 @@
 //u_list's конструкторы и деструктор
 template<typename T>
 u_list<T>::u_list()
-    : m_arr_size(0), m_start_node(nullptr), m_end_node(nullptr)
-{      
-    std::cout << "\n 1. Cоздан объект шаблонного класса u_list для хранения элементов размером " << sizeof(T) << " байта в контейнере типа «Двунаправленный список».";
+    : m_arr_size(0), m_start_node(nullptr), m_last_node(nullptr)
+{         
 }
 
 template<typename T>
-u_list<T>::u_list(u_list&& rhs) noexcept //доп. задание 3
+u_list<T>::u_list(const u_list& rhs)
+    : m_arr_size(0), m_start_node(new Node{}), m_last_node(nullptr)
+{
+    Node* new_node = nullptr;
+    Node* temp_node = m_start_node;
+    auto rhs_it = rhs.cbegin();
+    
+    //copy m_start_node
+    m_start_node->m_data = rhs_it->m_data;
+    ++m_arr_size;
+    ++rhs_it;    
+
+    //copy m_start_node < rhs_it < m_last_node
+    for (; rhs.cback() != rhs_it; ++rhs_it)
+    {
+        temp_node->next = new_node = new Node{};
+
+        new_node->m_data = rhs_it->m_data;
+        new_node->prev = temp_node;
+
+        temp_node = new_node;       
+        ++m_arr_size;
+    }
+
+    //copy m_last_node 
+    m_last_node = new Node{};
+    m_last_node->m_data = rhs_it->m_data;
+    m_last_node->prev = temp_node;
+    m_last_node->next = nullptr;
+    ++m_arr_size;
+}
+
+template<typename T>
+u_list<T>::u_list(u_list&& rhs) noexcept 
 {
     move_from(std::move(rhs));
-
-    std::cout << "\n 1. Вызван конструктор перемещения u_list(u_list&& rhs)";
 }
 
 template<typename T>
-u_list<T>& u_list<T>::operator=(u_list&& rhs) noexcept //доп. задание 3
+u_list<T>& u_list<T>::operator=(u_list&& rhs) noexcept 
 {
     if (&rhs == this)
         return *this;
 
     move_from(std::move(rhs));
 
-    std::cout << "\n 2. Вызван оператор присваивания перемещением operator=(u_list&& rhs)";
     return *this;
 }
 
@@ -67,13 +96,13 @@ void u_list<T>::push_back(const T& value)
     Node* new_end_node = new Node{ value };
 
     if (m_arr_size == 1)
-        m_start_node = m_end_node = new_end_node;
+        m_start_node = m_last_node = new_end_node;
     else
     {        
        // new_end_node->m_data = value;
-        new_end_node->prev = m_end_node;       
-        m_end_node->next = new_end_node;       
-        m_end_node = new_end_node;       
+        new_end_node->prev = m_last_node;       
+        m_last_node->next = new_end_node;       
+        m_last_node = new_end_node;       
     }
 }
 
@@ -88,8 +117,8 @@ template<typename T>
 void u_list<T>::erase(const size_t element_pos)
 {
     //проверяем позицию
-    if (element_pos <= 0 || element_pos > m_arr_size)
-        throw Errors::ErrorPosition;
+    if (element_pos <= 0 || element_pos > m_arr_size)    
+        return;
 
     Node* erase_node = m_start_node;    
 
@@ -115,8 +144,8 @@ void u_list<T>::erase(const size_t element_pos)
 template<typename T>
 void u_list<T>::insert(const size_t pos, const int value)
 {
-    if (pos < 1 || pos > m_arr_size)
-        throw Errors::ErrorPosition;
+    if (pos < 1 || pos > m_arr_size)  
+        return;
 
     Node* old_node = m_start_node;
     Node* new_node = new Node{ value };
@@ -154,16 +183,29 @@ typename u_list<T>::iterator u_list<T>::begin()
 }
 
 template<typename T>
+typename u_list<T>::iterator u_list<T>::cbegin() const
+{
+    return iterator(m_start_node);
+}
+
+template<typename T>
 typename u_list<T>::iterator u_list<T>::back()
 {
-    return iterator(m_end_node->prev);
+    return iterator(m_last_node);
+}
+
+template<typename T>
+typename u_list<T>::iterator u_list<T>::cback() const
+{
+    return iterator(m_last_node);
 }
 
 template<typename T>
 typename u_list<T>::iterator u_list<T>::end()
 {
-    return iterator(m_end_node->next);
+    return iterator(m_last_node->next);
 }
+
 
 template<typename T>
 std::ostream& operator<<(std::ostream& out, u_list<T>& rhs)
@@ -173,7 +215,7 @@ std::ostream& operator<<(std::ostream& out, u_list<T>& rhs)
 
     auto last = rhs.back();
 
-    for(auto it = rhs.begin(); it != last; ++it) //доп. задание 4  
+    for(auto it = rhs.begin(); it != last; ++it) 
         out << *it << ", ";
     
     out << *last;
@@ -185,16 +227,15 @@ std::ostream& operator<<(std::ostream& out, u_list<T>& rhs)
 template<typename T>
 void u_list<T>::move_from(u_list<T>&& rhs) noexcept {
     m_start_node = rhs.m_start_node;
-    m_end_node = rhs.m_end_node;
+    m_last_node = rhs.m_last_node;
     m_arr_size = rhs.m_arr_size;
 
-    rhs.m_start_node = rhs.m_end_node = nullptr;
+    rhs.m_start_node = rhs.m_last_node = nullptr;
     rhs.m_arr_size = 0;
 }
 
 
 //===========================================================================================================
-//доп. задание 4   
 //iterator's конструкторы и public методы
 template<typename T>
 u_list<T>::iterator::iterator(Node* p)
@@ -215,9 +256,15 @@ typename u_list<T>::iterator& u_list<T>::iterator::operator++()
 }
 
 template<typename T>
-bool u_list<T>::iterator::operator!=(typename u_list<T>::iterator& rhs)
+bool u_list<T>::iterator::operator!=(/*const*/ typename u_list<T>::iterator& rhs)
 {
     return  m_iterator_ptr != rhs.m_iterator_ptr;
+}
+
+template<typename T>
+typename u_list<T>::Node* u_list<T>::iterator::operator->()
+{
+    return m_iterator_ptr;
 }
 
 template<typename T>

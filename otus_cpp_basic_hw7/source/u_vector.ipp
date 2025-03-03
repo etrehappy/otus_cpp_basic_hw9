@@ -6,26 +6,29 @@ template<typename T>
 u_vector<T>::u_vector()
     : m_arr_size(0), m_arr(nullptr), m_capacity(0)
 {
-    std::cout << "\n 1. Cоздан объект шаблонного класса u_vector для хранения элементов размером " << sizeof(T) << " байта в последовательном контейнере.";
 }
 
 template<typename T>
-u_vector<T>::u_vector(u_vector<T>&& rhs) noexcept  //доп. задание 3
+u_vector<T>::u_vector(const u_vector<T>& rhs)
+    : m_arr_size(rhs.m_arr_size), m_arr(new T[rhs.m_arr_size]), m_capacity(rhs.m_capacity)
+{
+    for (size_t i = 0; i < m_arr_size; i++)
+        m_arr[i] = rhs.m_arr[i];
+}
+
+template<typename T>
+u_vector<T>::u_vector(u_vector<T>&& rhs) noexcept 
 {
     move_from(std::move(rhs));
-
-    std::cout << "\n 1. Вызван конструктор перемещения u_vector(u_vector<T>&& rhs)";
 }
 
 template<typename T>
-u_vector<T>& u_vector<T>::operator=(u_vector<T>&& rhs) noexcept  //доп. задание 3
+u_vector<T>& u_vector<T>::operator=(u_vector<T>&& rhs) noexcept 
 {
     if (&rhs == this) 
         return *this;
 
     move_from(std::move(rhs));
-
-    std::cout << "\n 2. Вызван оператор присваивания перемещением operator=(u_vector<T>&& rhs)";
     
     return *this;
 }
@@ -48,7 +51,7 @@ void u_vector<T>::push_back(const T& value)
 
     if (m_capacity <= old_size)
     {
-        double_capacity();          //доп. задание 1
+        double_capacity();          
         new_container(old_size);
         m_arr[old_size] = value;
     }
@@ -67,8 +70,8 @@ template<typename T>
 void u_vector<T>::erase(const size_t element_pos)
 {   
     //проверяем позицию
-    if (element_pos < 1 || element_pos > m_arr_size)
-        throw Errors::ErrorPosition;
+    if (element_pos < 1 || element_pos > m_arr_size)    
+        return;
 
     //смещаем элементы
     for (size_t pre_pos = element_pos - 1; pre_pos < m_arr_size; pre_pos++)
@@ -82,8 +85,8 @@ void u_vector<T>::erase(const size_t element_pos)
 template<typename T> 
 void u_vector<T>::insert(const size_t pos, const T& value)
 {
-    if (pos < 1 || pos > m_arr_size)
-        throw Errors::ErrorPosition;
+    if (pos < 1 || pos > m_arr_size)        
+        return;
 
     const size_t new_pos = pos - 1;
     const size_t old_size = m_arr_size;
@@ -171,20 +174,11 @@ void u_vector<T>::double_capacity()
 }
 
 template<typename T>
-void u_vector<T>::new_container(const size_t old_size) {
-
-/* 
-   T* arr_old = m_arr;
-    m_arr = new T[m_capacity]{ 0 };
-
-    std::copy(arr_old, arr_old + old_size, m_arr); //Использую std::copy, потому что VS не нравится мой код ниже (Warning C6386)
-    
-    delete[] arr_old;
-*/
-    
+void u_vector<T>::new_container(const size_t old_size) 
+{
     auto new_array = new T[m_capacity]{ 0 };
     for (size_t i = 0; i < old_size; ++i) 
-        new_array[i] = m_arr[i]; //Warning C6386
+        new_array[i] = m_arr[i]; 
     
     delete[] m_arr;
     m_arr = new_array;
@@ -214,9 +208,7 @@ void u_vector<T>::permutation(const size_t new_pos, size_t old_end)
 
 
 //===========================================================================================================
-//доп. задание 4   
 //iterator's конструкторы и public методы
-
 template<typename T>
 u_vector<T>::iterator::iterator(T* p)
     : m_iterator_ptr(p)

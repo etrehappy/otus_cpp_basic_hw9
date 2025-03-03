@@ -1,16 +1,15 @@
 #pragma once
 #include <iostream>
-#include "my_exception.h"
 
 template<typename T>
 class u_list
 {
 public:
     u_list();
-    u_list(const u_list&) = delete;
-    u_list& operator=(const u_list&) = delete;
-    u_list(u_list&& rhs) noexcept; //доп. задание 3
-    u_list& operator=(u_list&& rhs) noexcept; //доп. задание 3
+    u_list(const u_list&);
+    u_list& operator=(const u_list&) = delete; //нигде не используется
+    u_list(u_list&& rhs) noexcept; 
+    u_list& operator=(u_list&& rhs) noexcept; 
     virtual ~u_list();
 
     void push_back(const T& value);
@@ -20,7 +19,9 @@ public:
     
     struct iterator;
     iterator begin();
+    iterator cbegin() const;
     iterator back();
+    iterator cback() const;
     iterator end();
     template<typename T>
     friend std::ostream& operator<<(std::ostream& out, u_list& rhs);    
@@ -32,7 +33,7 @@ private:
 
     size_t m_arr_size;
     Node* m_start_node;    
-    Node* m_end_node;
+    Node* m_last_node;
 };
 
 template<typename T>
@@ -43,7 +44,8 @@ public:
 
     int& operator*();
     iterator& operator++();
-    bool operator!=(iterator& rhs);
+    bool operator!=(/*const*/ iterator& rhs);
+    Node* operator->();
 
     int& get();
 
