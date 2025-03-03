@@ -1,0 +1,10 @@
+^C:\USERS\ETREH\DOCUMENTS\PROGRAMMING\OTUS\C++_DEVELOPER_2023_06\BASIC\LESSON_2\HOME_WORK_2\OTUS_CPP_BASIC_HW2\SOURCE\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/etreh/Documents/Programming/Otus/C++_Developer_2023_06/Basic/lesson_2/home_work_2/otus_cpp_basic_hw2/source -BC:/Users/etreh/Documents/Programming/Otus/C++_Developer_2023_06/Basic/lesson_2/home_work_2/otus_cpp_basic_hw2/cmake --check-stamp-file C:/Users/etreh/Documents/Programming/Otus/C++_Developer_2023_06/Basic/lesson_2/home_work_2/otus_cpp_basic_hw2/cmake/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
